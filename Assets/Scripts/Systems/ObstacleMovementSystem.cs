@@ -1,55 +1,63 @@
 using Scellecs.Morpeh;
+using OptimumRunner.Components;
 
-public sealed class ObstacleMovementSystem : ISystem
+namespace OptimumRunner.Systems
 {
-    private Filter _playerFilter;
-    private Filter _obstacleFilter;
-    private Filter _gameStateFilter;
-    private World _world;
-
-    public World World { get => _world; set => _world = value; }
-
-    public void OnAwake()
+    public sealed class ObstacleMovementSystem : ISystem
     {
-        _playerFilter = World.Filter.With<PlayerTag>().With<Movement>().Build();
-        _obstacleFilter = World.Filter.With<ObstacleTag>().With<Position>().Build();
-        _gameStateFilter = World.Filter.With<GameState>().Build();
-    }
+        private Filter _playerFilter;
+        private Filter _obstacleFilter;
+        private Filter _gameStateFilter;
+        private World _world;
 
-    public void OnUpdate(float deltaTime)
-    {
-        float playerSpeed = 0f;
-        
-        foreach (var gameStateEntity in _gameStateFilter)
+        public World World
         {
-            ref var gameState = ref gameStateEntity.GetComponent<GameState>();
-            
-            if (gameState.isGameOver)
-                return;
+            get => _world;
+            set => _world = value;
         }
-        
-        foreach (var playerEntity in _playerFilter)
+
+        public void OnAwake()
         {
-            ref var movement = ref playerEntity.GetComponent<Movement>();
-            playerSpeed = movement.forwardSpeed;
+            _playerFilter = World.Filter.With<PlayerTag>().With<Movement>().Build();
+            _obstacleFilter = World.Filter.With<ObstacleTag>().With<Position>().Build();
+            _gameStateFilter = World.Filter.With<GameState>().Build();
         }
-        
-        foreach (var obstacleEntity in _obstacleFilter)
+
+        public void OnUpdate(float deltaTime)
         {
-            ref var position = ref obstacleEntity.GetComponent<Position>();
-            
-            // Move obstacle towards player (in opposite direction of player movement)
-            position.value.z -= playerSpeed * deltaTime;
-            
-            // Remove obstacles that are behind the player
-            if (position.value.z < -10f)
+            float playerSpeed = 0f;
+
+            foreach (var gameStateEntity in _gameStateFilter)
             {
-                World.RemoveEntity(obstacleEntity);
+                ref var gameState = ref gameStateEntity.GetComponent<GameState>();
+
+                if (gameState.isGameOver)
+                    return;
+            }
+
+            foreach (var playerEntity in _playerFilter)
+            {
+                ref var movement = ref playerEntity.GetComponent<Movement>();
+                playerSpeed = movement.forwardSpeed;
+            }
+
+            foreach (var obstacleEntity in _obstacleFilter)
+            {
+                ref var position = ref obstacleEntity.GetComponent<Position>();
+
+                // Move obstacle towards player (in opposite direction of player movement)
+                position.value.z -= playerSpeed * deltaTime;
+
+                // Remove obstacles that are behind the player
+                if (position.value.z < -10f)
+                {
+                    World.RemoveEntity(obstacleEntity);
+                }
             }
         }
-    }
 
-    public void Dispose()
-    {
+        public void Dispose()
+        {
+        }
     }
 }

@@ -1,48 +1,56 @@
 using Scellecs.Morpeh;
 using UnityEngine;
+using OptimumRunner.Components;
 
-public sealed class UIUpdateSystem : ISystem
+namespace OptimumRunner.Systems
 {
-    private Filter _scoreFilter;
-    private Filter _gameStateFilter;
-    private World _world;
-    private GameUI _gameUI;
-
-    public World World { get => _world; set => _world = value; }
-
-    public void OnAwake()
+    public sealed class UIUpdateSystem : ISystem
     {
-        _scoreFilter = World.Filter.With<Score>().Build();
-        _gameStateFilter = World.Filter.With<GameState>().Build();
-        _gameUI = GameObject.FindObjectOfType<GameUI>();
-    }
+        private Filter _scoreFilter;
+        private Filter _gameStateFilter;
+        private World _world;
+        private GameUI _gameUI;
 
-    public void OnUpdate(float deltaTime)
-    {
-        // Update score UI
-        foreach (var scoreEntity in _scoreFilter)
+        public World World
         {
-            ref var score = ref scoreEntity.GetComponent<Score>();
-            
-            if (_gameUI != null)
+            get => _world;
+            set => _world = value;
+        }
+
+        public void OnAwake()
+        {
+            _scoreFilter = World.Filter.With<Score>().Build();
+            _gameStateFilter = World.Filter.With<GameState>().Build();
+            _gameUI = GameObject.FindObjectOfType<GameUI>();
+        }
+
+        public void OnUpdate(float deltaTime)
+        {
+            // Update score UI
+            foreach (var scoreEntity in _scoreFilter)
             {
-                _gameUI.UpdateScoreText(score.value);
+                ref var score = ref scoreEntity.GetComponent<Score>();
+
+                if (_gameUI != null)
+                {
+                    _gameUI.UpdateScoreText(score.value);
+                }
+            }
+
+            // Check for game over
+            foreach (var gameStateEntity in _gameStateFilter)
+            {
+                ref var gameState = ref gameStateEntity.GetComponent<GameState>();
+
+                if (gameState.isGameOver && _gameUI != null)
+                {
+                    _gameUI.ShowGameOver();
+                }
             }
         }
-        
-        // Check for game over
-        foreach (var gameStateEntity in _gameStateFilter)
-        {
-            ref var gameState = ref gameStateEntity.GetComponent<GameState>();
-            
-            if (gameState.isGameOver && _gameUI != null)
-            {
-                _gameUI.ShowGameOver();
-            }
-        }
-    }
 
-    public void Dispose()
-    {
+        public void Dispose()
+        {
+        }
     }
 }

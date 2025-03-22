@@ -1,3 +1,4 @@
+using OptimumRunner.Systems;
 using Scellecs.Morpeh;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ public class GameInstaller : MonoBehaviour
     private void Awake()
     {
         // Initialize Morpeh world
-        _world = World.Default;
+        _world = World.Create();
         var systemsGroup = _world.CreateSystemsGroup();
         
         print("Installed");

@@ -1,4 +1,5 @@
 using System;
+using OptimumRunner.Components;
 using Scellecs.Morpeh;
 using UnityEngine;
 
@@ -28,7 +29,7 @@ public class EntityProvider : MonoBehaviour, IDisposable
     private void Update()
     {
         // First check if the entity is still valid before trying to access components
-        if (Entity != null && _isEntityValid && !_isBeingDestroyed)
+        if (_isEntityValid && !_isBeingDestroyed)
         {
             try
             {
@@ -62,7 +63,7 @@ public class EntityProvider : MonoBehaviour, IDisposable
             }
             
             // Remove entity from world if it exists
-            if (_world != null && Entity != null && _isEntityValid)
+            if (_world != null && _isEntityValid)
             {
                 try
                 {
@@ -87,7 +88,7 @@ public class EntityProvider : MonoBehaviour, IDisposable
     
     public static void RemoveEntityAndGameObject(Entity entity)
     {
-        if (entity != null && _allProviders.TryGetValue(entity, out EntityProvider provider))
+        if (_allProviders.TryGetValue(entity, out EntityProvider provider))
         {
             if (provider != null)
             {
