@@ -2,33 +2,33 @@ using Scellecs.Morpeh;
 
 public sealed class ScoreSystem : ISystem
 {
-    private Filter scoreFilter;
-    private Filter gameStateFilter;
-    private World world;
+    private Filter _scoreFilter;
+    private Filter _gameStateFilter;
+    private World _world;
 
-    public World World { get => world; set => world = value; }
+    public World World { get => _world; set => _world = value; }
 
     public void OnAwake()
     {
-        scoreFilter = World.Filter.With<Score>().Build();
-        gameStateFilter = World.Filter.With<GameState>().Build();
+        _scoreFilter = World.Filter.With<Score>().Build();
+        _gameStateFilter = World.Filter.With<GameState>().Build();
     }
 
     public void OnUpdate(float deltaTime)
     {
-        foreach (var gameStateEntity in gameStateFilter)
+        foreach (var gameStateEntity in _gameStateFilter)
         {
             ref var gameState = ref gameStateEntity.GetComponent<GameState>();
             
-            if (gameState.IsGameOver)
+            if (gameState.isGameOver)
                 return;
             
-            gameState.GameTime += deltaTime;
+            gameState.gameTime += deltaTime;
             
-            foreach (var scoreEntity in scoreFilter)
+            foreach (var scoreEntity in _scoreFilter)
             {
                 ref var score = ref scoreEntity.GetComponent<Score>();
-                score.Value += deltaTime;
+                score.value += deltaTime;
             }
         }
     }

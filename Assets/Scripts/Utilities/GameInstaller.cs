@@ -3,13 +3,13 @@ using UnityEngine;
 
 public class GameInstaller : MonoBehaviour
 {
-    private World world;
+    private World _world;
 
     private void Awake()
     {
         // Initialize Morpeh world
-        world = World.Default;
-        var systemsGroup = world.CreateSystemsGroup();
+        _world = World.Default;
+        var systemsGroup = _world.CreateSystemsGroup();
         
         print("Installed");
         
@@ -22,25 +22,26 @@ public class GameInstaller : MonoBehaviour
         systemsGroup.AddSystem(new PlayerMovementSystem());
         systemsGroup.AddSystem(new ObstacleMovementSystem());
         systemsGroup.AddSystem(new CollisionDetectionSystem());
+        systemsGroup.AddSystem(new ObstacleRemovalSystem()); 
         systemsGroup.AddSystem(new ScoreSystem());
         systemsGroup.AddSystem(new SpeedIncreaseSystem());
         systemsGroup.AddSystem(new UIUpdateSystem());
         
-        world.AddSystemsGroup(order: 0, systemsGroup);
+        _world.AddSystemsGroup(order: 0, systemsGroup);
     }
 
     private void Update()
     {
         // Update all systems
-        world.Update(Time.deltaTime);
+        _world.Update(Time.deltaTime);
     }
 
     private void OnDestroy()
     {
         // Clean up
-        if (world != null)
+        if (_world != null)
         {
-            world.Dispose();
+            _world.Dispose();
         }
     }
 }

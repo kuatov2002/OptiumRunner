@@ -4,26 +4,26 @@ using UnityEngine;
 
 public sealed class VisualCreationSystem : ISystem
 {
-    private Filter playerFilter;
-    private Filter obstacleFilter;
-    private HashSet<int> processedObstacleIds = new HashSet<int>();
-    private World world;
-    private EntityFactory entityFactory;
+    private Filter _playerFilter;
+    private Filter _obstacleFilter;
+    private HashSet<int> _processedObstacleIds = new HashSet<int>();
+    private World _world;
+    private EntityFactory _entityFactory;
 
-    public World World { get => world; set => world = value; }
+    public World World { get => _world; set => _world = value; }
 
     public void OnAwake()
     {
-        playerFilter = World.Filter.With<PlayerTag>().With<Position>().Build();
-        obstacleFilter = World.Filter.With<ObstacleTag>().With<Position>().Build();
+        _playerFilter = World.Filter.With<PlayerTag>().With<Position>().Build();
+        _obstacleFilter = World.Filter.With<ObstacleTag>().With<Position>().Build();
     
         // Get EntityFactory after creation
-        entityFactory = GameObject.FindObjectOfType<EntityFactory>();
+        _entityFactory = GameObject.FindObjectOfType<EntityFactory>();
     
-        if (entityFactory != null)
+        if (_entityFactory != null)
         {
-            entityFactory.Initialize(World);
-            entityFactory.CreatePlayerVisual();
+            _entityFactory.Initialize(World);
+            _entityFactory.CreatePlayerVisual();
         }
         else
         {
@@ -33,27 +33,27 @@ public sealed class VisualCreationSystem : ISystem
 
     public void OnUpdate(float deltaTime)
     {
-        if (entityFactory == null)
+        if (_entityFactory == null)
             return;
         
         // Create a set of current obstacle IDs for faster lookup
         HashSet<int> currentObstacleIds = new HashSet<int>();
         
         // Check for new obstacles
-        foreach (var obstacleEntity in obstacleFilter)
+        foreach (var obstacleEntity in _obstacleFilter)
         {
             int entityId = obstacleEntity.GetHashCode();
             currentObstacleIds.Add(entityId);
             
-            if (!processedObstacleIds.Contains(entityId))
+            if (!_processedObstacleIds.Contains(entityId))
             {
-                entityFactory.CreateObstacleVisual(obstacleEntity);
-                processedObstacleIds.Add(entityId);
+                _entityFactory.CreateObstacleVisual(obstacleEntity);
+                _processedObstacleIds.Add(entityId);
             }
         }
         
         // Clean up references to removed obstacles by only keeping IDs that still exist
-        processedObstacleIds.IntersectWith(currentObstacleIds);
+        _processedObstacleIds.IntersectWith(currentObstacleIds);
     }
 
     public void Dispose()

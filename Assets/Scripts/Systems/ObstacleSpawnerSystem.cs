@@ -3,39 +3,40 @@ using Unity.Mathematics;
 
 public sealed class ObstacleSpawnerSystem : ISystem
 {
-    private Filter gameStateFilter;
-    private World world;
-    private float spawnTimer;
-    private float spawnInterval = 2f;
-    private float spawnDistance = 50f;
-    private int[] lanes = { -1, 0, 1 };
+    private Filter _gameStateFilter;
+    private World _world;
+    private float _spawnTimer;
+    private float _maxSpawnInterval = 2f;
+    private float _minSpawnInterval = 0.7f;
+    private float _spawnDistance = 20f;
+    private int[] _lanes = { -1, 0, 1 };
 
-    public World World { get => world; set => world = value; }
+    public World World { get => _world; set => _world = value; }
 
     public void OnAwake()
     {
-        gameStateFilter = World.Filter.With<GameState>().Build();
-        spawnTimer = 0f;
+        _gameStateFilter = World.Filter.With<GameState>().Build();
+        _spawnTimer = 0f;
     }
 
     public void OnUpdate(float deltaTime)
     {
-        foreach (var gameStateEntity in gameStateFilter)
+        foreach (var gameStateEntity in _gameStateFilter)
         {
             ref var gameState = ref gameStateEntity.GetComponent<GameState>();
             
-            if (gameState.IsGameOver)
+            if (gameState.isGameOver)
                 return;
             
-            spawnTimer += deltaTime;
+            _spawnTimer += deltaTime;
             
-            if (spawnTimer >= spawnInterval)
+            if (_spawnTimer >= _maxSpawnInterval)
             {
-                spawnTimer = 0f;
+                _spawnTimer = 0f;
                 SpawnObstacle();
                 
                 // Gradually decrease spawn interval as game progresses
-                spawnInterval = math.max(0.5f, spawnInterval - 0.05f);
+                _maxSpawnInterval = math.max(_minSpawnInterval, _maxSpawnInterval - 0.03f);
             }
         }
     }
@@ -43,15 +44,15 @@ public sealed class ObstacleSpawnerSystem : ISystem
     private void SpawnObstacle()
     {
         // Choose a random lane
-        int laneIndex = UnityEngine.Random.Range(0, lanes.Length);
-        int lane = lanes[laneIndex];
+        int laneIndex = UnityEngine.Random.Range(0, _lanes.Length);
+        int lane = _lanes[laneIndex];
         
         Entity obstacleEntity = World.CreateEntity();
         
         ref ObstacleTag obstacleTag = ref obstacleEntity.AddComponent<ObstacleTag>();
         
         ref Position position = ref obstacleEntity.AddComponent<Position>();
-        position.Value = new float3(lane * 2f, 0.5f, spawnDistance);
+        position.value = new float3(lane * 2f, 0.5f, _spawnDistance);
     }
 
     public void Dispose()

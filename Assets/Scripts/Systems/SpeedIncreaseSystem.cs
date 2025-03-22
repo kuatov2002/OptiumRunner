@@ -3,38 +3,38 @@ using UnityEngine;
 
 public sealed class SpeedIncreaseSystem : ISystem
 {
-    private Filter playerFilter;
-    private Filter gameStateFilter;
-    private World world;
+    private Filter _playerFilter;
+    private Filter _gameStateFilter;
+    private World _world;
 
-    public World World { get => world; set => world = value; }
+    public World World { get => _world; set => _world = value; }
 
     public void OnAwake()
     {
-        playerFilter = World.Filter.With<PlayerTag>().With<Movement>().Build();
-        gameStateFilter = World.Filter.With<GameState>().Build();
+        _playerFilter = World.Filter.With<PlayerTag>().With<Movement>().Build();
+        _gameStateFilter = World.Filter.With<GameState>().Build();
     }
 
     public void OnUpdate(float deltaTime)
     {
-        foreach (var gameStateEntity in gameStateFilter)
+        foreach (var gameStateEntity in _gameStateFilter)
         {
             ref var gameState = ref gameStateEntity.GetComponent<GameState>();
             
-            if (gameState.IsGameOver)
+            if (gameState.isGameOver)
                 return;
             
-            if (gameState.GameTime - gameState.LastSpeedIncreaseTime >= gameState.SpeedIncreaseInterval)
+            if (gameState.gameTime - gameState.lastSpeedIncreaseTime >= gameState.speedIncreaseInterval)
             {
                 // Time to increase speed
-                gameState.LastSpeedIncreaseTime = gameState.GameTime;
+                gameState.lastSpeedIncreaseTime = gameState.gameTime;
                 
-                foreach (var playerEntity in playerFilter)
+                foreach (var playerEntity in _playerFilter)
                 {
                     ref var movement = ref playerEntity.GetComponent<Movement>();
-                    movement.ForwardSpeed += movement.ForwardSpeed * gameState.SpeedIncreasePercentage;
+                    movement.forwardSpeed += movement.forwardSpeed * gameState.speedIncreasePercentage;
                     
-                    Debug.Log($"Speed increased to: {movement.ForwardSpeed}");
+                    Debug.Log($"Speed increased to: {movement.forwardSpeed}");
                 }
             }
         }

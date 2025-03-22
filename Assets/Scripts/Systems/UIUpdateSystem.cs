@@ -3,41 +3,41 @@ using UnityEngine;
 
 public sealed class UIUpdateSystem : ISystem
 {
-    private Filter scoreFilter;
-    private Filter gameStateFilter;
-    private World world;
-    private GameUI gameUI;
+    private Filter _scoreFilter;
+    private Filter _gameStateFilter;
+    private World _world;
+    private GameUI _gameUI;
 
-    public World World { get => world; set => world = value; }
+    public World World { get => _world; set => _world = value; }
 
     public void OnAwake()
     {
-        scoreFilter = World.Filter.With<Score>().Build();
-        gameStateFilter = World.Filter.With<GameState>().Build();
-        gameUI = GameObject.FindObjectOfType<GameUI>();
+        _scoreFilter = World.Filter.With<Score>().Build();
+        _gameStateFilter = World.Filter.With<GameState>().Build();
+        _gameUI = GameObject.FindObjectOfType<GameUI>();
     }
 
     public void OnUpdate(float deltaTime)
     {
         // Update score UI
-        foreach (var scoreEntity in scoreFilter)
+        foreach (var scoreEntity in _scoreFilter)
         {
             ref var score = ref scoreEntity.GetComponent<Score>();
             
-            if (gameUI != null)
+            if (_gameUI != null)
             {
-                gameUI.UpdateScoreText(score.Value);
+                _gameUI.UpdateScoreText(score.value);
             }
         }
         
         // Check for game over
-        foreach (var gameStateEntity in gameStateFilter)
+        foreach (var gameStateEntity in _gameStateFilter)
         {
             ref var gameState = ref gameStateEntity.GetComponent<GameState>();
             
-            if (gameState.IsGameOver && gameUI != null)
+            if (gameState.isGameOver && _gameUI != null)
             {
-                gameUI.ShowGameOver();
+                _gameUI.ShowGameOver();
             }
         }
     }
